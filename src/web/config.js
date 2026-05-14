@@ -1,5 +1,6 @@
 const config = {
-  apiUrl: 'http://localhost:3000'
+  // ポートを5600に固定
+  apiUrl: 'http://localhost:5600'
 };
 
 export default config;

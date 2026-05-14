@@ -3,16 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>案件情報入力</title>
+    <title>顧客情報確認</title>
     <!-- Bootstrap CSSの読み込み -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container mt-5" id="main-container">
         <!-- ここにHTMLを書く -->
+         <!-- 確認画面 ---->
+         <h2 class="mb-4">入力内容を確認してください。</h2>
+         
+         <table class="table table-bordered mt-4">
+                <tbody>
+                 <tr>
+                     <th>会社名</th>
+                     <td id="confirm-companyName"></td>
+                 </tr>
+                 <tr>
+                     <th>業種</th>
+                     <td id="confirm-industry"></td>
+                 </tr>
+                 <tr>
+                     <th>連絡先</th>
+                     <td id="confirm-contact"></td>
+                 </tr>
+                 <tr>
+                     <th>所在地</th>
+                     <td id="confirm-location"></td>
+                 </tr>
+             </tbody>
+            </table>
+
+            <div class="mt-4">
+            <a href="add.html" class="btn btn-secondary">内容を変更する</a>
+             <button id="submit-btn" class="btn btn-success">登録を確定</button>
+            </div>
+        </div>
+
+         <!-- 完了画面-->
+         <div id="complete-section" style="display: none;">
+                <h2 class="mb-4">登録が完了しました！</h2>
+                <div class="alert alert-success mt-4">
+                    顧客情報が正常に登録されました。
+                </div>
+                <a href="list.html" class="btn btn-primary">顧客一覧へ</a>
+         </div>
+
     </div>
+
     <script type="module">
-        <!-- ここにJSを書く -->
+        import config from '../config.js';
+        // ページ読み込み時に、セッションストレージから入力データを取得して表示
+            window.addEventListener('DOMContentLoaded', () => {
+            const saveData = sessionStorage.getItem('customer_registration_data');
+            // データが空の場合は、不正アクセスとしてトップページにリダイレクト
+            if(!saveData){
+                alert('入力データがありません。');
+                window.location.href = 'add.html';
+                return;
+            }
+            const data = JSON.parse(saveData);
+            
+                // データが存在する場合は、確認画面に表示
+            document.getElementById('confirm-companyName').textContent = data.companyname || '';
+            document.getElementById('confirm-industry').textContent = data.industry || '';
+            document.getElementById('confirm-contact').textContent  = data.contact || '';
+            document.getElementById('confirm-location').textContent = data.location || '';
+            
+                // 登録確定ボタンがクリックされたときの処理
+            document.getElementById('submit-btn').addEventListener('click',async () => {
+                try {
+                    const response = await fetch(`${config.apiUrl}/add-customer`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                     });
+
+                    if(response.ok){
+                        // 登録成功後の処理
+                        sessionStorage.removeItem('customer_registration_data'); // 登録後はセッションストレージからデータを削除
+                        document.getElementById('complete-section').style.display = 'block'; // 完了画面を表示 
+                        document.getElementById('main-container').style.display = 'none'; // 確認画面を非表示
+                        alert('登録が完了しました。');
+                    } else {
+                        // 登録失敗の処理
+                        alert('登録に失敗しました。もう一度お試しください。');
+                    }
+                } catch(error){
+                    console.error('エラーが発生しました:', error);
+                    alert('通信エラーが発生しました。もう一度お試しください。');
+                }
+                });
+            });
     </script>
     <!-- BootstrapのJavaScriptの読み込み -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
