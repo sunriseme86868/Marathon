@@ -13,7 +13,7 @@
         <form id="customer-form">
             <div class="form-group">
                 <label for="companyName">会社名:</label>
-                <input type="text" class="form-control" id="companyName" name="companyName" required>
+                <input type="text" class="form-control" id="companyName" name="companyname" required>
             </div>
             <div class="form-group">
                 <label for="industry">業種:</label>
@@ -27,33 +27,39 @@
                 <label for="location">所在地:</label>
                 <input type="text" class="form-control" id="location" name="location" required>
             </div>
-            <button type="submit" class="btn btn-primary">送信</button>
+            <button type="submit" class="btn btn-primary">確認画面へ</button>
         </form>
     </div>
     <script type="module">
-        import config from '../config.js';
-
-        document.getElementById('customer-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            fetch(config.apiUrl + '/add-customer', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams([...formData])
-            }).then(response => response.json())
-              .then(data => {
-                if(data.success) {
-                    alert('顧客情報が正常に保存されました。');
-                    // フォームをリセット
-                    document.getElementById('customer-form').reset();
-                } else {
-                    alert('保存に失敗しました。');
-                }
-              })
-              .catch(error => console.error('Error:', error));
+        const form = document.getElementById('customer-form');
+        // ページ読み込み時に、もし過去の入力データがあれば自動復元する（戻ってきた時のため）
+        window.addEventListener('DOMContentLoaded', () => {
+            const saveData = sessionStorage.getItem('customer_registration_data');
+            if(saveData){
+                const data = JSON.parse(saveData);
+                form.companyname.value = data.companyname || '';
+                form.industry.value = data.industry || '';
+                form.contact.value = data.contact || '';
+                form.location.value = data.location || '';
+            }
         });
+        // フォーム送信時の処理
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); //デフォルトの送信挙動をキャンセル
+            //入力データを取得してオブジェクトにする。
+            const formData = new FormData(this);
+            const data = {
+                companyname: formData.get('companyname'),
+                industry: formData.get('industry'),
+                contact: formData.get('contact'),
+                location: formData.get('location')
+            };
+            //入力データをセッションストレージに保存する（確認画面で利用するため）
+            sessionStorage.setItem('customer_registration_data', JSON.stringify(data));
+            //確認画面へ遷移する
+            window.location.href = 'add-confirm.html';
+        });
+
     </script>
     <!-- BootstrapのJavaScriptの読み込み -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

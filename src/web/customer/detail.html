@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>詳細一覧画面</title>
+    <!-- Bootstrap CSSの読み込み -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- ここにHTMLを書く -->
+         <h2 class="mb-4">詳細一覧画面</h2>
+         <p></p>
+         
+         <ul>
+             <li><strong>会社名:</strong> <span id="confirm-companyName"></span></li>
+             <li><strong>業種:</strong> <span id="confirm-industry"></span></li>
+             <li><strong>連絡先:</strong> <span id="confirm-contact"></span></li>
+             <li><strong>所在地:</strong> <span id="confirm-location"></span></li>
+         </ul>
+             <button onclick="submitDate()" class="btn btn-danger">登録を確定</button>
+            <button onclick="history.back()" class="btn btn-success">登録内容を変更する</button>
+
+    </div>
+    <script type="module">
+        <!-- ここにJSを書く -->
+    </script>
+    <!-- BootstrapのJavaScriptの読み込み -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -9,15 +9,19 @@ app.use(cors());
 
 const { Pool } = require("pg");
 const pool = new Pool({
-  user: "x", // PostgreSQLのユーザー名に置き換えてください
-  host: "x",
-  database: "x", // PostgreSQLのデータベース名に置き換えてください
-  password: "x", // PostgreSQLのパスワードに置き換えてください
+  user: "user_5600", // PostgreSQLのユーザー名に置き換えてください
+  host: "db", // PostgreSQLのホスト名に置き換えてください
+  database: "crm_5600", // PostgreSQLのデータベース名に置き換えてください
+  password: "pass_5600", // PostgreSQLのパスワードに置き換えてください
   port: 5432,
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
+});
+
+app.get("/", (req, res) => {
+  res.send("<h1>CRMサーバー稼働中</h1><p><a href='/customers'>顧客リストを表示する</a></p>");
 });
 
 app.get("/customers", async (req, res) => {
@@ -35,10 +39,10 @@ app.use(express.json());
 
 app.post("/add-customer", async (req, res) => {
   try {
-    const { companyName, industry, contact, location } = req.body;
+    const { companyname, industry, contact, location } = req.body;
     const newCustomer = await pool.query(
-      "INSERT INTO customers (company_nam, industry, contact, location) VALUES ($1, $2, $3, $4) RETURNING *",
-      [companyName, industry, contact, location]
+      "INSERT INTO customers (company_name, industry, contact, location) VALUES ($1, $2, $3, $4) RETURNING *",
+      [companyname, industry, contact, location]
     );
     res.json({ success: true, customer: newCustomer.rows[0] });
   } catch (err) {

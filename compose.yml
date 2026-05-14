@@ -20,6 +20,7 @@ services:
       - ./work:/work
     working_dir: /app
     tty: true # 開発時のみ有効
+    command: npm run dev
 
   db:
     container_name: postgres
