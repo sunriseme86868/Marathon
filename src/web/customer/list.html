@@ -19,6 +19,7 @@
           </tr>
         </thead>
         <tbody id="customer-list">
+ 
           <!-- 顧客データはここに挿入されます -->
         </tbody>
       </table>
@@ -36,13 +37,22 @@
         .then((data) => {
           console.log(data); // ここで解析されたデータをログに出力
           const list = document.getElementById("customer-list");
+
           data.forEach((customer, index) => {
             const row = list.insertRow();
             const cell1 = row.insertCell(0);
             const cell2 = row.insertCell(1);
             const cell3 = row.insertCell(2);
-            cell1.textContent = index + 1;
-            cell2.textContent = customer.companyname;
+            //１、連番をセット
+            cell1.textContent = index + 1; // 行番号を設定
+
+            //２、会社名にリンクを設定
+            const link = document.createElement("a");
+            link.href = `./detail.html?id=${customer.customer_id}`; // 顧客のIDをクエリパラメータとして渡す
+            link.textContent = customer.company_name;
+            cell2.appendChild(link);// 会社名をリンクとして表示
+
+            //３、連絡先をセット
             cell3.textContent = customer.contact;
           });
         })

@@ -34,6 +34,28 @@ app.get("/customers", async (req, res) => {
   }
 });
 
+app.get("/customers/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const customerData = await pool.query("SELECT * FROM customers WHERE customer_id = $1", [id]);
+    res.send(customerData.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error " + err);
+  }
+});
+
+app.delete("/customers/:id", async (req, res) =>{
+  try {
+    const { id } = req.params;
+    const deleteResult= await pool.query("DELETE FROM customers WHERE customer_id= $1", [id]);
+    res.json({ success: true, message: `ID:${id} の顧客を削除しました。`});
+  } catch (err) {
+    console.error("サーバー側での削除エラー", err);
+    res.status(500).jsonp({success: false,error: err.message});
+  }
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
