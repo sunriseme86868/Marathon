@@ -1,75 +1,164 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>詳細一覧画面</title>
     <!-- Bootstrap CSSの読み込み -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .form-control-plaintext {
+            border-bottom: 1px dashed #ccc !important;
+            display: inline-block;
+            width: auto;
+            min-width: 250px;
+        }
+    </style>
 </head>
+
 <body>
     <div class="container mt-5">
-        <!-- ここにHTMLを書く -->
-         <div class ="card-header bg-dark text-white">
-             <h2 class="h5 mb-0">顧客詳細(ID:<span id="confirm-id">-</span>)</h2>
-         </div>
-         <p></p>
-         
-         <ul>
-             <li><strong>会社名:</strong> <span id="confirm-companyName"></span></li>
-             <li><strong>業種:</strong> <span id="confirm-industry"></span></li>
-             <li><strong>連絡先:</strong> <span id="confirm-contact"></span></li>
-             <li><strong>所在地:</strong> <span id="confirm-location"></span></li>
-         </ul>
-        <button class="btn btn-secondary" onclick="location.href='./list.html'">顧客一覧表示画面へ戻る</button> 
-        <button class="btn btn-danger" id="delete-btn">この顧客情報を削除する</button>
+        <div class="card-header bg-dark text-white">
+            <h2 class="h5 mb-0">顧客詳細</h2>
+        </div>
+        <p></p>
 
+        <ul class="list-unstyled">
+            <li class="mb-2"><strong>ID:</strong> <span id="confirm-id"></span></li>
+            <li class="mb-2"><strong>会社名:</strong> <input type="text" id="confirm-companyName"
+                    class="form-control-plaintext" readonly></li>
+            <li class="mb-2"><strong>業界:</strong> <input type="text" id="confirm-industry"
+                    class="form-control-plaintext" readonly></li>
+            <li class="mb-2"><strong>連絡先:</strong> <input type="text" id="confirm-contact"
+                    class="form-control-plaintext" readonly></li>
+            <li class="mb-2"><strong>所在地:</strong> <input type="text" id="confirm-location"
+                    class="form-control-plaintext" readonly></li>
+            <li class="mb-2"><strong>登録日時:</strong> <span id="confirm-createdAt"></span></li>
+            <li class="mb-2"><strong>更新日時:</strong> <span id="confirm-updatedAt"></span></li>
+        </ul>
+
+        <div class="mt-4">
+            <button class="btn btn-secondary" onclick="location.href='./list.html'">顧客一覧表示画面へ戻る</button>
+            <button class="btn btn-primary" id="update-btn">この顧客情報を編集する</button>
+            <button class="btn btn-danger" id="delete-btn">この顧客情報を削除する</button>
+        </div>
     </div>
+
     <script type="module">
         import config from "../config.js";
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
         console.log("URLから取得したID:", id); // ここでIDをログに出力
 
+        let isEditing = false; // 編集モードかどうかを判定するフラグ
+
         if (id) {
             document.getElementById('confirm-id').textContent = id;
         }
-            fetch(`${config.apiUrl}/customers/${id}`)
-            .then(response => {
-                console.log(response); // ここでレスポンスオブジェクトをログに出力
-                return response.json();
-            })
+        // サーバーから顧客情報を取得して表示する(初期表示用)
+        fetch(`${config.apiUrl}/customers/${id}`)
+            .then(response => response.json())
             .then(data => {
                 console.log("サーバーから取得したデータ:", data); // ここで解析されたデータをログに出力
+                const customer = Array.isArray(data) ? data[0] : data; // データが配列の場合は最初の要素を使用
 
-                const customer = Array.isArray(data)? data[0] : data; // データが配列の場合は最初の要素を使用
+                //input要素に顧客情報を表示する
+                //編集可能
+                document.getElementById('confirm-companyName').value = customer.company_name || "";
+                document.getElementById('confirm-industry').value = customer.industry || "";
+                document.getElementById('confirm-contact').value = customer.contact || "";
+                document.getElementById('confirm-location').value = customer.location || "";
 
-                document.getElementById('confirm-companyName').textContent = customer.company_name;
-                document.getElementById('confirm-industry').textContent = customer.industry;
-                document.getElementById('confirm-contact').textContent = customer.contact;
-                document.getElementById('confirm-location').textContent = customer.location;
+                // 日時は編集不可
+                document.getElementById('confirm-createdAt').textContent = customer.created_at || "-";
+                document.getElementById('confirm-updatedAt').textContent = customer.updated_at || "-";
             })
             .catch(error => console.error(error));
-    
+
+        // 編集ボタンがクリックされたときの処理
+        document.getElementById('update-btn').addEventListener('click', () => {
+            const inputs = [
+                document.getElementById('confirm-companyName'),
+                document.getElementById('confirm-industry'),
+                document.getElementById('confirm-contact'),
+                document.getElementById('confirm-location')
+            ];
+            const btn = document.getElementById('update-btn');
+
+            if (!isEditing) {
+                //編集モードに切り替える処理
+                isEditing = true;
+                btn.textContent = '変更を保存する';
+                btn.className = "btn btn-success"; // ボタンの見た目を変更
+
+                // input要素を編集可能にする
+                inputs.forEach(input => {
+                    input.readOnly = false; // 編集可能にする
+                    input.Name = "form-control d-inline-block";
+                });
+            } else {
+                //保存処理
+                if (confirm("この内容で顧客情報を更新しますか？")) {
+                    const updatedData = {
+                        company_name: document.getElementById('confirm-companyName').value,
+                        industry: document.getElementById('confirm-industry').value,
+                        contact: document.getElementById('confirm-contact').value,
+                        location: document.getElementById('confirm-location').value
+                    };
+                    //サーバーに更新された顧客情報を送信する(PUTリクエスト)
+                    fetch(`${config.apiUrl}/customers/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updatedData)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("顧客情報が正常に更新されました。");
+                                location.reload(); // 更新後にページをリロードして最新の情報を表示
+                                isEditing = false; // 編集モードを解除
+                                btn.textContent = 'この顧客情報を編集する';
+                                btn.className = "btn btn-primary"; // ボタンの見た目を変更
+                                // input要素を再び編集不可にする
+                                inputs.forEach(input => {
+                                    input.readOnly = true; // 編集不可にする
+                                    input.className = "form-control-plaintext"; // クラスを元に戻す
+                                });
+                            } else {
+                                alert("顧客情報の更新に失敗しました。");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("更新エラー", error);
+                            alert("顧客情報の更新中にエラーが発生しました。");
+                        });
+                }
+            }
+        });
+
+        // 削除ボタンがクリックされたときの処理
         document.getElementById('delete-btn').addEventListener('click', () => {
             if (confirm("本当にこの顧客情報を削除しますか？")) {
                 fetch(`${config.apiUrl}/customers/${id}`, {
                     method: 'DELETE'
                 })
-                .then(response => response.json())
-                .then(data =>{
-                    if (data.success) {
-                        alert("顧客情報が正常に削除されました。");
-                        location.href = './list.html'; // 削除後に顧客一覧画面へリダイレクト
-                    } else {
-                        alert("顧客情報の削除に失敗しました。");
-                    }
-                })
-                .catch(error => {
-                    console.error("削除エラー", error);
-                    alert("顧客情報の削除中にエラーが発生しました。");
-                }); 
-                } 
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("顧客情報が正常に削除されました。");
+                            location.href = './list.html'; // 削除後に顧客一覧画面へリダイレクト
+                        } else {
+                            alert("顧客情報の削除に失敗しました。");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("削除エラー", error);
+                        alert("顧客情報の削除中にエラーが発生しました。");
+                    });
+            }
         });
 
     </script>
@@ -78,4 +167,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
+
 </html>

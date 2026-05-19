@@ -65,7 +65,7 @@
             const data = JSON.parse(saveData);
             
                 // データが存在する場合は、確認画面に表示
-            document.getElementById('confirm-companyName').textContent = data.companyname || '';
+            document.getElementById('confirm-companyName').textContent = data.company_name || '';
             document.getElementById('confirm-industry').textContent = data.industry || '';
             document.getElementById('confirm-contact').textContent  = data.contact || '';
             document.getElementById('confirm-location').textContent = data.location || '';
