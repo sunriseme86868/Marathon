@@ -13,7 +13,7 @@
         <form id="customer-form">
             <div class="form-group">
                 <label for="companyName">会社名:</label>
-                <input type="text" class="form-control" id="companyName" name="companyname" required>
+                <input type="text" class="form-control" id="companyName" name="company_name" required>
             </div>
             <div class="form-group">
                 <label for="industry">業種:</label>
@@ -37,7 +37,7 @@
             const saveData = sessionStorage.getItem('customer_registration_data');
             if(saveData){
                 const data = JSON.parse(saveData);
-                form.companyname.value = data.companyname || '';
+                form.company_name.value = data.company_name || '';
                 form.industry.value = data.industry || '';
                 form.contact.value = data.contact || '';
                 form.location.value = data.location || '';
@@ -49,7 +49,7 @@
             //入力データを取得してオブジェクトにする。
             const formData = new FormData(this);
             const data = {
-                companyname: formData.get('companyname'),
+                company_name: formData.get('company_name'),
                 industry: formData.get('industry'),
                 contact: formData.get('contact'),
                 location: formData.get('location')
