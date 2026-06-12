@@ -7,6 +7,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: CI test
+        run: echo "CI test 成功"
       - id: ssh
         uses: invi5H/ssh-action@v1
         with:
