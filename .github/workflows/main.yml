@@ -21,7 +21,7 @@ jobs:
         run: ssh ${{ steps.ssh.outputs.SERVER }} bash /app/a-bando/deploy.sh a-bando
 
       - name: run test on staging
-        run: ssh ${{ steps.ssh.outputs.SERVER }} bash /ci/cypress/run.sh a-bando
+        run: ssh ${{ steps.ssh.outputs.SERVER }} "cd /ci && npx cypress run --spec cypress/e2e/a-bando.cy.js
 
   production-deploy:
     runs-on: ubuntu-latest
